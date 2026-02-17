@@ -133,21 +133,20 @@ export function Editor() {
             {suggestions.map((suggestion, i) => (
               <div
                 key={`${suggestion}-${i}`}
-                className="flex items-center text-lg leading-relaxed"
+                className="relative text-lg leading-relaxed"
                 style={{
                   color:
                     i === activeIndex ? "hsl(0 0% 35%)" : "hsl(0 0% 55%)",
                 }}
               >
-                <span
-                  className="w-5 shrink-0 text-center"
-                  style={{
-                    opacity: i === activeIndex ? 1 : 0,
-                  }}
-                  aria-hidden="true"
-                >
-                  &middot;
-                </span>
+                {i === activeIndex && (
+                  <span
+                    className="absolute -left-5 top-0"
+                    aria-hidden="true"
+                  >
+                    &middot;
+                  </span>
+                )}
                 <span>{suggestion}</span>
               </div>
             ))}
