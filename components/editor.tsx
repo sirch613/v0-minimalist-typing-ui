@@ -37,7 +37,8 @@ export function Editor() {
         setActiveIndex(-1)
         setTimeout(() => setSuggestions([]), 150)
       }
-    } catch {
+    } catch (error) {
+      console.log("[v0] Fetch error:", error)
       setVisible(false)
       setActiveIndex(-1)
       setTimeout(() => setSuggestions([]), 150)
@@ -45,7 +46,8 @@ export function Editor() {
   }, [])
 
   const handleInput = useCallback(() => {
-    const text = editorRef.current?.textContent || ""
+    const text = editorRef.current?.innerText || ""
+    console.log("[v0] handleInput fired, text:", text)
 
     setVisible(false)
     setActiveIndex(-1)
