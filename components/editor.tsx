@@ -24,10 +24,8 @@ export function Editor() {
     }
 
     try {
-      console.log("[v0] Fetching suggestions for:", text.trim())
       const res = await fetch(`/api/suggest?q=${encodeURIComponent(text.trim())}`)
       const data = await res.json()
-      console.log("[v0] Response data:", data)
       if (data.suggestions && data.suggestions.length > 0) {
         setSuggestions(data.suggestions.slice(0, 5))
         setActiveIndex(-1)
@@ -35,19 +33,15 @@ export function Editor() {
       } else {
         setVisible(false)
         setActiveIndex(-1)
-        setTimeout(() => setSuggestions([]), 150)
       }
-    } catch (error) {
-      console.log("[v0] Fetch error:", error)
+    } catch {
       setVisible(false)
       setActiveIndex(-1)
-      setTimeout(() => setSuggestions([]), 150)
     }
   }, [])
 
   const handleInput = useCallback(() => {
     const text = editorRef.current?.innerText || ""
-    console.log("[v0] handleInput fired, text:", text)
 
     setVisible(false)
     setActiveIndex(-1)
@@ -127,32 +121,30 @@ export function Editor() {
           aria-multiline="true"
         />
 
-        {suggestions.length > 0 && (
-          <div
-            className="mt-3 flex flex-col gap-0.5 transition-opacity duration-150 ease-in-out"
-            style={{ opacity: visible ? 1 : 0 }}
-            aria-live="polite"
-            aria-label="Search suggestions"
-          >
-            {suggestions.map((suggestion, i) => (
-              <div
-                key={`${suggestion}-${i}`}
-                className="relative text-lg leading-relaxed"
-                style={{ color: "hsl(0 0% 55%)" }}
-              >
-                {i === activeIndex && (
-                  <span
-                    className="absolute -left-5 top-0"
-                    aria-hidden="true"
-                  >
-                    &middot;
-                  </span>
-                )}
-                <span>{suggestion}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <div
+          className="mt-3 flex flex-col gap-0.5 transition-opacity duration-100 ease-in-out"
+          style={{ opacity: visible ? 1 : 0 }}
+          aria-live="polite"
+          aria-label="Search suggestions"
+        >
+          {suggestions.map((suggestion, i) => (
+            <div
+              key={`${suggestion}-${i}`}
+              className="relative text-lg leading-relaxed"
+              style={{ color: "hsl(0 0% 55%)" }}
+            >
+              {i === activeIndex && (
+                <span
+                  className="absolute -left-5 top-0"
+                  aria-hidden="true"
+                >
+                  &middot;
+                </span>
+              )}
+              <span>{suggestion}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
