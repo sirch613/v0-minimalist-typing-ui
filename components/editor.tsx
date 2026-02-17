@@ -83,8 +83,12 @@ export function Editor() {
 
       {suggestions.length > 0 && (
         <div
-          className="mt-8 flex flex-col gap-3 transition-opacity duration-150 ease-in-out"
-          style={{ opacity: visible ? 1 : 0 }}
+          className="w-full mt-6 flex flex-col gap-4 transition-opacity duration-150 ease-in-out"
+          style={{
+            opacity: visible ? 1 : 0,
+            paddingLeft: "calc(50vw - 1.5in)",
+            paddingRight: "calc(50vw - 1.5in)",
+          }}
           aria-live="polite"
           aria-label="Search suggestions"
         >
@@ -92,7 +96,7 @@ export function Editor() {
             <span
               key={`${suggestion}-${i}`}
               className="text-base leading-relaxed"
-              style={{ color: "hsl(0 0% 62%)" }}
+              style={{ color: "hsl(0 0% 72%)" }}
             >
               {suggestion}
             </span>
