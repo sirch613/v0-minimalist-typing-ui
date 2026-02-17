@@ -106,7 +106,7 @@ export function Editor() {
         className="w-full"
         style={{
           paddingTop: "calc(50vh - 0.75em)",
-          paddingLeft: "calc(50vw - 3.5in)",
+          paddingLeft: "calc(50vw - 2.5in)",
           paddingRight: "2rem",
         }}
       >
