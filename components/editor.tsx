@@ -7,7 +7,10 @@ export function Editor() {
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [visible, setVisible] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
+  const [answer, setAnswer] = useState("")
+  const [answerVisible, setAnswerVisible] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const answerDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (editorRef.current) {
@@ -19,7 +22,7 @@ export function Editor() {
     if (!text.trim()) {
       setVisible(false)
       setActiveIndex(-1)
-      setTimeout(() => setSuggestions([]), 150)
+      setAnswerVisible(false)
       return
     }
 
@@ -29,22 +32,55 @@ export function Editor() {
       if (data.suggestions && data.suggestions.length > 0) {
         setSuggestions(data.suggestions.slice(0, 5))
         setActiveIndex(-1)
+        setAnswerVisible(false)
         requestAnimationFrame(() => setVisible(true))
       } else {
         setVisible(false)
         setActiveIndex(-1)
+        setAnswerVisible(false)
       }
     } catch {
       setVisible(false)
       setActiveIndex(-1)
+      setAnswerVisible(false)
     }
   }, [])
+
+  const fetchAnswer = useCallback(async (query: string) => {
+    setAnswerVisible(false)
+
+    if (answerDebounceRef.current) {
+      clearTimeout(answerDebounceRef.current)
+    }
+
+    answerDebounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/answer?q=${encodeURIComponent(query)}`)
+        const data = await res.json()
+        if (data.answer) {
+          setAnswer(data.answer)
+          requestAnimationFrame(() => setAnswerVisible(true))
+        }
+      } catch {
+        setAnswerVisible(false)
+      }
+    }, 100)
+  }, [])
+
+  useEffect(() => {
+    if (activeIndex >= 0 && suggestions[activeIndex]) {
+      fetchAnswer(suggestions[activeIndex])
+    } else {
+      setAnswerVisible(false)
+    }
+  }, [activeIndex, suggestions, fetchAnswer])
 
   const handleInput = useCallback(() => {
     const text = editorRef.current?.innerText || ""
 
     setVisible(false)
     setActiveIndex(-1)
+    setAnswerVisible(false)
 
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
@@ -72,7 +108,6 @@ export function Editor() {
         const selected = suggestions[activeIndex]
         if (editorRef.current) {
           editorRef.current.textContent = selected
-          // Place cursor at end
           const range = document.createRange()
           const sel = window.getSelection()
           range.selectNodeContents(editorRef.current)
@@ -81,6 +116,7 @@ export function Editor() {
           sel?.addRange(range)
         }
         setActiveIndex(-1)
+        setAnswerVisible(false)
         handleInput()
       }
     },
@@ -89,9 +125,8 @@ export function Editor() {
 
   useEffect(() => {
     return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current)
-      }
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      if (answerDebounceRef.current) clearTimeout(answerDebounceRef.current)
     }
   }, [])
 
@@ -144,6 +179,23 @@ export function Editor() {
               <span>{suggestion}</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div
+        className="fixed top-0 right-0 h-screen flex items-center pr-12 pointer-events-none"
+        style={{ width: "calc(50vw - 1in)" }}
+      >
+        <div
+          className="transition-opacity duration-150 ease-in-out max-w-sm"
+          style={{ opacity: answerVisible ? 1 : 0 }}
+        >
+          <p
+            className="text-sm leading-relaxed"
+            style={{ color: "hsl(0 0% 45%)" }}
+          >
+            {answer}
+          </p>
         </div>
       </div>
     </div>
