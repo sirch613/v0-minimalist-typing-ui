@@ -87,7 +87,7 @@ export function Editor() {
 
         {suggestions.length > 0 && (
           <div
-            className="mt-4 flex flex-col gap-1.5 transition-opacity duration-150 ease-in-out"
+            className="mt-3 flex flex-col gap-0.5 transition-opacity duration-150 ease-in-out"
             style={{ opacity: visible ? 1 : 0 }}
             aria-live="polite"
             aria-label="Search suggestions"
@@ -96,7 +96,7 @@ export function Editor() {
               <span
                 key={`${suggestion}-${i}`}
                 className="text-lg leading-relaxed"
-                style={{ color: "hsl(0 0% 72%)" }}
+                style={{ color: "hsl(0 0% 55%)" }}
               >
                 {suggestion}
               </span>
