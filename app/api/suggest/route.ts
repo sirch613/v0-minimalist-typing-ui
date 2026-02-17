@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { generateText } from "ai"
-import { createGroq } from "@ai-sdk/groq"
-
-const groq = createGroq({
-  apiKey: process.env.GROQ_API_KEY,
-})
+import { groq } from "@ai-sdk/groq"
 
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get("q")
 
   console.log("[v0] Suggest API called with query:", query)
-  console.log("[v0] GROQ_API_KEY exists:", !!process.env.GROQ_API_KEY)
 
   if (!query || query.trim().length === 0) {
     return NextResponse.json({ suggestions: [] })
