@@ -132,15 +132,17 @@ export function Editor() {
 
   return (
     <div
-      className="h-screen w-full overflow-hidden bg-background"
+      className="h-screen w-full overflow-hidden bg-background flex"
       onClick={() => editorRef.current?.focus()}
     >
+      {/* Left side: input + suggestions */}
       <div
-        className="w-full"
+        className="h-full shrink-0"
         style={{
+          width: "55%",
           paddingTop: "calc(50vh - 0.75em)",
           paddingLeft: "calc(50vw - 2.5in)",
-          paddingRight: "2rem",
+          paddingRight: "3rem",
         }}
       >
         <div
@@ -182,9 +184,15 @@ export function Editor() {
         </div>
       </div>
 
+      {/* Right side: answer card */}
       <div
-        className="fixed top-0 right-0 h-screen flex items-center pr-12 pointer-events-none"
-        style={{ width: "calc(50vw - 1in)" }}
+        className="h-full flex items-center pointer-events-none"
+        style={{
+          width: "45%",
+          paddingTop: "calc(50vh - 0.75em)",
+          paddingRight: "3rem",
+          alignItems: "flex-start",
+        }}
       >
         <div
           className="transition-opacity duration-150 ease-in-out max-w-sm"
