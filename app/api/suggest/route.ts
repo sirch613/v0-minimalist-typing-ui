@@ -9,6 +9,9 @@ const groq = createGroq({
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get("q")
 
+  console.log("[v0] Suggest API called with query:", query)
+  console.log("[v0] GROQ_API_KEY exists:", !!process.env.GROQ_API_KEY)
+
   if (!query || query.trim().length === 0) {
     return NextResponse.json({ suggestions: [] })
   }
@@ -19,14 +22,19 @@ export async function GET(request: NextRequest) {
       prompt: `Here's the query "${query}". Give me 5 brilliant search suggestions that are super smart. Return ONLY the 5 suggestions, one per line, no numbering, no extra text.`,
     })
 
+    console.log("[v0] Groq raw response:", text)
+
     const suggestions = text
       .split("\n")
       .map((s) => s.trim())
       .filter((s) => s.length > 0)
       .slice(0, 5)
 
+    console.log("[v0] Parsed suggestions:", suggestions)
+
     return NextResponse.json({ suggestions })
-  } catch {
+  } catch (error) {
+    console.log("[v0] Groq error:", error)
     return NextResponse.json({ suggestions: [] })
   }
 }

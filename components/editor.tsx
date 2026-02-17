@@ -24,8 +24,10 @@ export function Editor() {
     }
 
     try {
+      console.log("[v0] Fetching suggestions for:", text.trim())
       const res = await fetch(`/api/suggest?q=${encodeURIComponent(text.trim())}`)
       const data = await res.json()
+      console.log("[v0] Response data:", data)
       if (data.suggestions && data.suggestions.length > 0) {
         setSuggestions(data.suggestions.slice(0, 5))
         setActiveIndex(-1)
