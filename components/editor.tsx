@@ -134,10 +134,7 @@ export function Editor() {
               <div
                 key={`${suggestion}-${i}`}
                 className="relative text-lg leading-relaxed"
-                style={{
-                  color:
-                    i === activeIndex ? "hsl(0 0% 35%)" : "hsl(0 0% 55%)",
-                }}
+                style={{ color: "hsl(0 0% 55%)" }}
               >
                 {i === activeIndex && (
                   <span
