@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
+import { generateText } from "ai"
+import { createGroq } from "@ai-sdk/groq"
+
+const groq = createGroq({
+  apiKey: process.env.GROQ_API_KEY,
+})
 
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get("q")
@@ -8,55 +14,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const res = await fetch(
-      `https://api.search.brave.com/res/v1/suggest/search?q=${encodeURIComponent(query)}&count=6`,
-      {
-        headers: {
-          Accept: "application/json",
-          "Accept-Encoding": "gzip",
-          "X-Subscription-Token": process.env.BRAVE_API_KEY!,
-        },
-      }
-    )
+    const { text } = await generateText({
+      model: groq("llama-3.3-70b-versatile"),
+      prompt: `Here's the query "${query}". Give me 5 brilliant search suggestions that are super smart. Return ONLY the 5 suggestions, one per line, no numbering, no extra text.`,
+    })
 
-    if (!res.ok) {
-      return NextResponse.json({ suggestions: [] })
-    }
-
-    const data = await res.json()
-    console.log("[v0] Brave suggest response:", JSON.stringify(data, null, 2))
-
-    const suggestions: string[] = []
-
-    // Brave suggest API can return results in different fields
-    if (data.results) {
-      for (const result of data.results) {
-        if (result.query && suggestions.length < 6) {
-          suggestions.push(result.query)
-        }
-      }
-    }
-
-    // Also check the "query" -> "suggestions" path
-    if (suggestions.length === 0 && data.query?.suggestions) {
-      for (const s of data.query.suggestions) {
-        if (typeof s === "string" && suggestions.length < 6) {
-          suggestions.push(s)
-        }
-      }
-    }
-
-    // Also check if it's an OpenSearch-style array response
-    if (suggestions.length === 0 && Array.isArray(data) && data.length >= 2) {
-      const items = data[1]
-      if (Array.isArray(items)) {
-        for (const item of items) {
-          if (typeof item === "string" && suggestions.length < 6) {
-            suggestions.push(item)
-          }
-        }
-      }
-    }
+    const suggestions = text
+      .split("\n")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0)
+      .slice(0, 5)
 
     return NextResponse.json({ suggestions })
   } catch {

@@ -27,7 +27,7 @@ export function Editor() {
       const res = await fetch(`/api/suggest?q=${encodeURIComponent(text.trim())}`)
       const data = await res.json()
       if (data.suggestions && data.suggestions.length > 0) {
-        setSuggestions(data.suggestions.slice(0, 6))
+        setSuggestions(data.suggestions.slice(0, 5))
         setActiveIndex(-1)
         requestAnimationFrame(() => setVisible(true))
       } else {
