@@ -21,11 +21,10 @@ export function Editor() {
         contentEditable
         suppressContentEditableWarning
         spellCheck={false}
-        className="w-full max-w-[600px] min-h-[1em] text-foreground text-lg leading-relaxed outline-none caret-foreground"
+        className="w-full min-h-[1em] text-foreground text-lg leading-relaxed outline-none"
         style={{
-          paddingLeft: "calc(50% - 1.5in)",
-          paddingRight: "1rem",
-          caretColor: "var(--foreground)",
+          paddingLeft: "calc(50vw - 1.5in)",
+          paddingRight: "calc(50vw - 1.5in)",
         }}
         role="textbox"
         aria-label="Text editor"
