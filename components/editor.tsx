@@ -62,47 +62,48 @@ export function Editor() {
 
   return (
     <div
-      className="flex min-h-screen w-full flex-col items-center justify-center bg-background"
+      className="h-screen w-full overflow-hidden bg-background"
       onClick={() => editorRef.current?.focus()}
     >
       <div
-        ref={editorRef}
-        contentEditable
-        suppressContentEditableWarning
-        spellCheck={false}
-        onInput={handleInput}
-        className="w-full min-h-[1em] text-foreground text-lg leading-relaxed outline-none"
+        className="w-full"
         style={{
+          paddingTop: "calc(50vh - 0.75em)",
           paddingLeft: "calc(50vw - 1.5in)",
           paddingRight: "calc(50vw - 1.5in)",
         }}
-        role="textbox"
-        aria-label="Text editor"
-        aria-multiline="true"
-      />
-
-      {suggestions.length > 0 && (
+      >
         <div
-          className="w-full mt-6 flex flex-col gap-4 transition-opacity duration-150 ease-in-out"
-          style={{
-            opacity: visible ? 1 : 0,
-            paddingLeft: "calc(50vw - 1.5in)",
-            paddingRight: "calc(50vw - 1.5in)",
-          }}
-          aria-live="polite"
-          aria-label="Search suggestions"
-        >
-          {suggestions.map((suggestion, i) => (
-            <span
-              key={`${suggestion}-${i}`}
-              className="text-base leading-relaxed"
-              style={{ color: "hsl(0 0% 72%)" }}
-            >
-              {suggestion}
-            </span>
-          ))}
-        </div>
-      )}
+          ref={editorRef}
+          contentEditable
+          suppressContentEditableWarning
+          spellCheck={false}
+          onInput={handleInput}
+          className="w-full min-h-[1em] text-foreground text-lg leading-relaxed outline-none"
+          role="textbox"
+          aria-label="Text editor"
+          aria-multiline="true"
+        />
+
+        {suggestions.length > 0 && (
+          <div
+            className="mt-6 flex flex-col gap-4 transition-opacity duration-150 ease-in-out"
+            style={{ opacity: visible ? 1 : 0 }}
+            aria-live="polite"
+            aria-label="Search suggestions"
+          >
+            {suggestions.map((suggestion, i) => (
+              <span
+                key={`${suggestion}-${i}`}
+                className="text-base leading-relaxed"
+                style={{ color: "hsl(0 0% 72%)" }}
+              >
+                {suggestion}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
