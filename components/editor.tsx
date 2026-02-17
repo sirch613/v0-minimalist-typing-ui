@@ -95,7 +95,7 @@ export function Editor() {
             {suggestions.map((suggestion, i) => (
               <span
                 key={`${suggestion}-${i}`}
-                className="text-base leading-relaxed"
+                className="text-lg leading-relaxed"
                 style={{ color: "hsl(0 0% 72%)" }}
               >
                 {suggestion}
