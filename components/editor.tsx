@@ -6,6 +6,7 @@ export function Editor() {
   const editorRef = useRef<HTMLDivElement>(null)
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [visible, setVisible] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(-1)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -17,6 +18,7 @@ export function Editor() {
   const fetchSuggestions = useCallback(async (text: string) => {
     if (!text.trim()) {
       setVisible(false)
+      setActiveIndex(-1)
       setTimeout(() => setSuggestions([]), 150)
       return
     }
@@ -26,13 +28,16 @@ export function Editor() {
       const data = await res.json()
       if (data.suggestions && data.suggestions.length > 0) {
         setSuggestions(data.suggestions.slice(0, 6))
+        setActiveIndex(-1)
         requestAnimationFrame(() => setVisible(true))
       } else {
         setVisible(false)
+        setActiveIndex(-1)
         setTimeout(() => setSuggestions([]), 150)
       }
     } catch {
       setVisible(false)
+      setActiveIndex(-1)
       setTimeout(() => setSuggestions([]), 150)
     }
   }, [])
@@ -40,8 +45,8 @@ export function Editor() {
   const handleInput = useCallback(() => {
     const text = editorRef.current?.textContent || ""
 
-    // Fade out immediately on keystroke
     setVisible(false)
+    setActiveIndex(-1)
 
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
@@ -51,6 +56,38 @@ export function Editor() {
       fetchSuggestions(text)
     }, 250)
   }, [fetchSuggestions])
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (suggestions.length === 0 || !visible) return
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault()
+        setActiveIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : prev
+        )
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault()
+        setActiveIndex((prev) => (prev > 0 ? prev - 1 : -1))
+      } else if (e.key === "Enter" && activeIndex >= 0) {
+        e.preventDefault()
+        const selected = suggestions[activeIndex]
+        if (editorRef.current) {
+          editorRef.current.textContent = selected
+          // Place cursor at end
+          const range = document.createRange()
+          const sel = window.getSelection()
+          range.selectNodeContents(editorRef.current)
+          range.collapse(false)
+          sel?.removeAllRanges()
+          sel?.addRange(range)
+        }
+        setActiveIndex(-1)
+        handleInput()
+      }
+    },
+    [suggestions, visible, activeIndex, handleInput]
+  )
 
   useEffect(() => {
     return () => {
@@ -79,6 +116,7 @@ export function Editor() {
           suppressContentEditableWarning
           spellCheck={false}
           onInput={handleInput}
+          onKeyDown={handleKeyDown}
           className="w-full min-h-[1em] text-foreground text-lg leading-relaxed outline-none"
           role="textbox"
           aria-label="Text editor"
@@ -93,13 +131,25 @@ export function Editor() {
             aria-label="Search suggestions"
           >
             {suggestions.map((suggestion, i) => (
-              <span
+              <div
                 key={`${suggestion}-${i}`}
-                className="text-lg leading-relaxed"
-                style={{ color: "hsl(0 0% 55%)" }}
+                className="flex items-center text-lg leading-relaxed"
+                style={{
+                  color:
+                    i === activeIndex ? "hsl(0 0% 35%)" : "hsl(0 0% 55%)",
+                }}
               >
-                {suggestion}
-              </span>
+                <span
+                  className="w-5 shrink-0 text-center"
+                  style={{
+                    opacity: i === activeIndex ? 1 : 0,
+                  }}
+                  aria-hidden="true"
+                >
+                  &middot;
+                </span>
+                <span>{suggestion}</span>
+              </div>
             ))}
           </div>
         )}
