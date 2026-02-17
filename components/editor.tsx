@@ -139,7 +139,7 @@ export function Editor() {
       <div
         className="h-full shrink-0"
         style={{
-          width: "55%",
+          width: "65%",
           paddingTop: "calc(50vh - 0.75em)",
           paddingLeft: "calc(50vw - 2.5in)",
           paddingRight: "3rem",
@@ -188,14 +188,14 @@ export function Editor() {
       <div
         className="h-full flex items-center pointer-events-none"
         style={{
-          width: "45%",
+          width: "35%",
           paddingTop: "calc(50vh - 0.75em)",
           paddingRight: "3rem",
           alignItems: "flex-start",
         }}
       >
         <div
-          className="transition-opacity duration-150 ease-in-out max-w-sm"
+          className="transition-opacity duration-150 ease-in-out max-w-xs"
           style={{ opacity: answerVisible ? 1 : 0 }}
         >
           <p
