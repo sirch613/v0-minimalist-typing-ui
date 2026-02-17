@@ -87,7 +87,7 @@ export function Editor() {
 
         {suggestions.length > 0 && (
           <div
-            className="mt-6 flex flex-col gap-4 transition-opacity duration-150 ease-in-out"
+            className="mt-4 flex flex-col gap-1.5 transition-opacity duration-150 ease-in-out"
             style={{ opacity: visible ? 1 : 0 }}
             aria-live="polite"
             aria-label="Search suggestions"
