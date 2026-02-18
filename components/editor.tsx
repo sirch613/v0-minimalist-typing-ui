@@ -7,10 +7,24 @@ export function Editor() {
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [visible, setVisible] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
+  const [activeLogoIndex, setActiveLogoIndex] = useState(-1)
   const [answer, setAnswer] = useState("")
   const [answerVisible, setAnswerVisible] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const answerDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const logos = [
+    { name: "Google", url: "https://logo.clearbit.com/google.com" },
+    { name: "Apple", url: "https://logo.clearbit.com/apple.com" },
+    { name: "Spotify", url: "https://logo.clearbit.com/spotify.com" },
+    { name: "Netflix", url: "https://logo.clearbit.com/netflix.com" },
+    { name: "Airbnb", url: "https://logo.clearbit.com/airbnb.com" },
+    { name: "Stripe", url: "https://logo.clearbit.com/stripe.com" },
+    { name: "Slack", url: "https://logo.clearbit.com/slack.com" },
+    { name: "GitHub", url: "https://logo.clearbit.com/github.com" },
+    { name: "Figma", url: "https://logo.clearbit.com/figma.com" },
+    { name: "Linear", url: "https://logo.clearbit.com/linear.app" },
+  ]
 
   useEffect(() => {
     if (editorRef.current) {
@@ -93,6 +107,18 @@ export function Editor() {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        e.preventDefault()
+        setActiveLogoIndex((prev) =>
+          prev < logos.length - 1 ? prev + 1 : prev
+        )
+        return
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault()
+        setActiveLogoIndex((prev) => (prev > 0 ? prev - 1 : -1))
+        return
+      }
+
       if (suggestions.length === 0 || !visible) return
 
       if (e.key === "ArrowDown") {
@@ -120,7 +146,7 @@ export function Editor() {
         handleInput()
       }
     },
-    [suggestions, visible, activeIndex, handleInput]
+    [suggestions, visible, activeIndex, handleInput, logos.length]
   )
 
   useEffect(() => {
@@ -140,11 +166,36 @@ export function Editor() {
         className="h-full shrink-0"
         style={{
           width: "65%",
-          paddingTop: "calc(50vh - 0.75em)",
+          paddingTop: "calc(50vh - 3rem)",
           paddingLeft: "calc(25vw - 1.25in)",
           paddingRight: "3rem",
         }}
       >
+        <div className="flex items-center gap-3 mb-8">
+          {logos.map((logo, i) => (
+            <div
+              key={logo.name}
+              className="relative shrink-0"
+            >
+              <div
+                className="w-8 h-8 rounded-full overflow-hidden transition-all duration-100"
+                style={{
+                  opacity: activeLogoIndex === i ? 1 : 0.35,
+                  boxShadow: activeLogoIndex === i ? "0 0 0 1.5px hsl(0 72% 51%)" : "none",
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={logo.url}
+                  alt={logo.name}
+                  className="w-full h-full object-cover"
+                  crossOrigin="anonymous"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
         <div
           ref={editorRef}
           contentEditable
