@@ -141,7 +141,7 @@ export function Editor() {
         style={{
           width: "65%",
           paddingTop: "calc(50vh - 0.75em)",
-          paddingLeft: "calc(50vw - 2.5in)",
+          paddingLeft: "calc(25vw - 1.25in)",
           paddingRight: "3rem",
         }}
       >
