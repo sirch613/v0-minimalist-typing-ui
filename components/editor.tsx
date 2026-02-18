@@ -2,33 +2,54 @@
 
 import { useRef, useEffect, useState, useCallback } from "react"
 
+interface SearchResult {
+  name: string
+  favicon: string
+  url: string
+  desc: string
+}
+
 export function Editor() {
   const editorRef = useRef<HTMLDivElement>(null)
   const [suggestions, setSuggestions] = useState<string[]>([])
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [visible, setVisible] = useState(false)
+  const [resultsVisible, setResultsVisible] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
   const [activeLogoIndex, setActiveLogoIndex] = useState(-1)
   const [answer, setAnswer] = useState("")
   const [answerVisible, setAnswerVisible] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const answerDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const logos = [
-    { name: "Google", url: "https://logo.clearbit.com/google.com", desc: "Search engine and technology company that organizes the world's information. Known for Gmail, Maps, Android, and cloud computing services used by billions worldwide." },
-    { name: "Apple", url: "https://logo.clearbit.com/apple.com", desc: "Consumer electronics and software company behind the iPhone, Mac, and iPad. Pioneered personal computing and continues to shape how people interact with technology." },
-    { name: "Spotify", url: "https://logo.clearbit.com/spotify.com", desc: "Audio streaming platform with over 600 million users. Offers music, podcasts, and audiobooks with personalized recommendations powered by machine learning." },
-    { name: "Netflix", url: "https://logo.clearbit.com/netflix.com", desc: "Streaming entertainment service with original films and series. Transformed how the world consumes media, operating in over 190 countries." },
-    { name: "Airbnb", url: "https://logo.clearbit.com/airbnb.com", desc: "Online marketplace for short and long-term lodging. Connects travelers with unique stays and experiences hosted by locals in cities around the globe." },
-    { name: "Stripe", url: "https://logo.clearbit.com/stripe.com", desc: "Financial infrastructure platform for internet businesses. Powers payments, billing, and financial operations for millions of companies from startups to enterprises." },
-    { name: "Slack", url: "https://logo.clearbit.com/slack.com", desc: "Business messaging platform that brings teams together. Offers channels, direct messaging, and integrations with hundreds of tools to streamline workplace communication." },
-    { name: "GitHub", url: "https://logo.clearbit.com/github.com", desc: "Developer platform for version control and collaboration. Home to over 100 million developers building software together through repositories and open source projects." },
-    { name: "Figma", url: "https://logo.clearbit.com/figma.com", desc: "Collaborative design tool used by teams to create interfaces and prototypes. Runs entirely in the browser with real-time multiplayer editing capabilities." },
-    { name: "Linear", url: "https://logo.clearbit.com/linear.app", desc: "Project management tool built for modern software teams. Focuses on speed and simplicity with keyboard-first design and streamlined issue tracking workflows." },
-  ]
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (editorRef.current) {
       editorRef.current.focus()
+    }
+  }, [])
+
+  const fetchSearchResults = useCallback(async (text: string) => {
+    if (!text.trim()) {
+      setResultsVisible(false)
+      setActiveLogoIndex(-1)
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(text.trim())}`)
+      const data = await res.json()
+      if (data.results && data.results.length > 0) {
+        setSearchResults(data.results)
+        setActiveLogoIndex(-1)
+        requestAnimationFrame(() => setResultsVisible(true))
+      } else {
+        setResultsVisible(false)
+        setActiveLogoIndex(-1)
+      }
+    } catch {
+      setResultsVisible(false)
+      setActiveLogoIndex(-1)
     }
   }, [])
 
@@ -84,10 +105,10 @@ export function Editor() {
   useEffect(() => {
     if (activeIndex >= 0 && suggestions[activeIndex]) {
       fetchAnswer(suggestions[activeIndex])
-    } else {
+    } else if (activeLogoIndex < 0) {
       setAnswerVisible(false)
     }
-  }, [activeIndex, suggestions, fetchAnswer])
+  }, [activeIndex, suggestions, fetchAnswer, activeLogoIndex])
 
   const handleInput = useCallback(() => {
     const text = editorRef.current?.innerText || ""
@@ -95,24 +116,30 @@ export function Editor() {
     setVisible(false)
     setActiveIndex(-1)
     setAnswerVisible(false)
+    setResultsVisible(false)
+    setActiveLogoIndex(-1)
 
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current)
-    }
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
 
     debounceRef.current = setTimeout(() => {
       fetchSuggestions(text)
     }, 250)
-  }, [fetchSuggestions])
+
+    searchDebounceRef.current = setTimeout(() => {
+      fetchSearchResults(text)
+    }, 300)
+  }, [fetchSuggestions, fetchSearchResults])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === "ArrowRight") {
+        if (searchResults.length === 0) return
         e.preventDefault()
         setActiveIndex(-1)
         setAnswerVisible(false)
         setActiveLogoIndex((prev) =>
-          prev < logos.length - 1 ? prev + 1 : prev
+          prev < searchResults.length - 1 ? prev + 1 : prev
         )
         return
       } else if (e.key === "ArrowLeft") {
@@ -152,13 +179,14 @@ export function Editor() {
         handleInput()
       }
     },
-    [suggestions, visible, activeIndex, handleInput, logos.length]
+    [suggestions, visible, activeIndex, handleInput, searchResults.length]
   )
 
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
       if (answerDebounceRef.current) clearTimeout(answerDebounceRef.current)
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
     }
   }, [])
 
@@ -177,10 +205,13 @@ export function Editor() {
           paddingRight: "3rem",
         }}
       >
-        <div className="flex items-center gap-2 mb-6">
-          {logos.map((logo, i) => (
+        <div
+          className="flex items-center gap-2 mb-6 transition-opacity duration-100 ease-in-out"
+          style={{ opacity: resultsVisible ? 1 : 0 }}
+        >
+          {searchResults.map((result, i) => (
             <div
-              key={logo.name}
+              key={`${result.url}-${i}`}
               className="relative shrink-0"
             >
               <div
@@ -192,8 +223,8 @@ export function Editor() {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={logo.url}
-                  alt={logo.name}
+                  src={result.favicon}
+                  alt={result.name}
                   className="w-full h-full object-cover"
                   crossOrigin="anonymous"
                 />
@@ -253,24 +284,24 @@ export function Editor() {
           justifyContent: "flex-start",
         }}
       >
-        {/* Logo info */}
+        {/* Search result info */}
         <div
           className="transition-opacity duration-100 ease-in-out max-w-xs mb-6"
           style={{ opacity: activeLogoIndex >= 0 ? 1 : 0 }}
         >
-          {activeLogoIndex >= 0 && (
+          {activeLogoIndex >= 0 && searchResults[activeLogoIndex] && (
             <>
               <p
                 className="text-sm font-medium mb-1"
                 style={{ color: "hsl(0 0% 30%)" }}
               >
-                {logos[activeLogoIndex].name}
+                {searchResults[activeLogoIndex].name}
               </p>
               <p
                 className="text-sm leading-relaxed"
                 style={{ color: "hsl(0 0% 50%)" }}
               >
-                {logos[activeLogoIndex].desc}
+                {searchResults[activeLogoIndex].desc}
               </p>
             </>
           )}
