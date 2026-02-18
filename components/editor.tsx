@@ -39,6 +39,7 @@ export function Editor() {
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(text.trim())}`)
       const data = await res.json()
+      console.log("[v0] Search results:", data)
       if (data.results && data.results.length > 0) {
         setSearchResults(data.results)
         setActiveLogoIndex(-1)
@@ -47,7 +48,8 @@ export function Editor() {
         setResultsVisible(false)
         setActiveLogoIndex(-1)
       }
-    } catch {
+    } catch (err) {
+      console.log("[v0] Search error:", err)
       setResultsVisible(false)
       setActiveLogoIndex(-1)
     }
