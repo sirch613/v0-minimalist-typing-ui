@@ -172,7 +172,8 @@ export function Editor() {
             >
               {i === activeIndex && (
                 <span
-                  className="absolute -left-5 top-0"
+                  className="absolute -left-5 top-1/2 -translate-y-1/2 text-2xl"
+                  style={{ color: "hsl(0 72% 51%)" }}
                   aria-hidden="true"
                 >
                   &middot;
