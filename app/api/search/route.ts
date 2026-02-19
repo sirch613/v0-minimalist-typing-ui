@@ -27,9 +27,6 @@ export async function GET(request: NextRequest) {
     })
 
     const data = await res.json()
-    console.log("[v0] Exa response status:", res.status)
-    console.log("[v0] Exa results count:", data.results?.length)
-    console.log("[v0] Exa first result:", JSON.stringify(data.results?.[0], null, 2))
 
     const results = (data.results || []).slice(0, 10).map((r: { url?: string; title?: string; text?: string; favicon?: string }) => {
       const domain = r.url ? new URL(r.url).hostname : ""

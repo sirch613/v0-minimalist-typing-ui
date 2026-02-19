@@ -39,7 +39,6 @@ export function Editor() {
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(text.trim())}`)
       const data = await res.json()
-      console.log("[v0] Search results:", data)
       if (data.results && data.results.length > 0) {
         setSearchResults(data.results)
         setActiveLogoIndex(-1)
@@ -48,8 +47,7 @@ export function Editor() {
         setResultsVisible(false)
         setActiveLogoIndex(-1)
       }
-    } catch (err) {
-      console.log("[v0] Search error:", err)
+    } catch {
       setResultsVisible(false)
       setActiveLogoIndex(-1)
     }
@@ -132,6 +130,15 @@ export function Editor() {
       fetchSearchResults(text)
     }, 300)
   }, [fetchSuggestions, fetchSearchResults])
+
+  const handleLogoImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget
+    img.style.display = "none"
+    const parent = img.parentElement
+    if (parent) {
+      parent.style.backgroundColor = "hsl(0 0% 80%)"
+    }
+  }
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -229,6 +236,7 @@ export function Editor() {
                   alt={result.name}
                   className="w-full h-full object-cover"
                   crossOrigin="anonymous"
+                  onError={handleLogoImageError}
                 />
               </div>
             </div>
