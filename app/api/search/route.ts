@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
       const favicon =
         r.favicon ||
         (domain ? `https://www.google.com/s2/favicons?sz=128&domain=${domain}` : "")
+      console.log("[v0] Result:", { url: r.url, domain, exaFavicon: r.favicon, finalFavicon: favicon })
       return {
         name: r.title || domain,
         favicon,

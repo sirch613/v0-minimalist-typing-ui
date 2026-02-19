@@ -133,11 +133,16 @@ export function Editor() {
 
   const handleLogoImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget
+    console.log("[v0] Favicon failed to load:", img.src)
     img.style.display = "none"
     const parent = img.parentElement
     if (parent) {
       parent.style.backgroundColor = "hsl(0 0% 80%)"
     }
+  }
+
+  const handleLogoImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.log("[v0] Favicon loaded successfully:", e.currentTarget.src)
   }
 
   const handleKeyDown = useCallback(
@@ -237,6 +242,7 @@ export function Editor() {
                   className="w-full h-full object-cover"
                   crossOrigin="anonymous"
                   onError={handleLogoImageError}
+                  onLoad={handleLogoImageLoad}
                 />
               </div>
             </div>
