@@ -29,10 +29,14 @@ export async function GET(request: NextRequest) {
     const data = await res.json()
 
     const results = (data.results || []).slice(0, 10).map((r: { url?: string; title?: string; text?: string; favicon?: string }) => {
-      const domain = r.url ? new URL(r.url).hostname : ""
+      const domain = r.url ? new URL(r.url).hostname?.replace("www.", "") : ""
+      // Try Exa favicon first, then Google's favicon service
+      const favicon =
+        r.favicon ||
+        (domain ? `https://www.google.com/s2/favicons?sz=128&domain=${domain}` : "")
       return {
         name: r.title || domain,
-        favicon: r.favicon || `https://logo.clearbit.com/${domain}`,
+        favicon,
         url: r.url || "",
         desc: r.text?.trim() || "",
       }
