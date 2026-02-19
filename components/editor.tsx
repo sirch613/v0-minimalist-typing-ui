@@ -208,7 +208,7 @@ export function Editor() {
         }}
       >
         <div
-          className="flex items-center gap-2 mb-6 transition-opacity duration-100 ease-in-out"
+          className="flex items-center gap-2 mb-6 transition-opacity duration-100 ease-in-out h-5"
           style={{ opacity: resultsVisible ? 1 : 0 }}
         >
           {searchResults.map((result, i) => (
