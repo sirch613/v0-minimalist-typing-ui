@@ -19,9 +19,9 @@ export function Editor() {
   const [activeLogoIndex, setActiveLogoIndex] = useState(-1)
   const [answer, setAnswer] = useState("")
   const [answerVisible, setAnswerVisible] = useState(false)
+  const [currentQuery, setCurrentQuery] = useState("")
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const answerDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (editorRef.current) {
@@ -31,8 +31,6 @@ export function Editor() {
 
   const fetchSearchResults = useCallback(async (text: string) => {
     if (!text.trim()) {
-      setResultsVisible(false)
-      setActiveLogoIndex(-1)
       return
     }
 
@@ -57,7 +55,6 @@ export function Editor() {
     if (!text.trim()) {
       setVisible(false)
       setActiveIndex(-1)
-      setAnswerVisible(false)
       return
     }
 
@@ -67,17 +64,14 @@ export function Editor() {
       if (data.suggestions && data.suggestions.length > 0) {
         setSuggestions(data.suggestions.slice(0, 5))
         setActiveIndex(-1)
-        setAnswerVisible(false)
         requestAnimationFrame(() => setVisible(true))
       } else {
         setVisible(false)
         setActiveIndex(-1)
-        setAnswerVisible(false)
       }
     } catch {
       setVisible(false)
       setActiveIndex(-1)
-      setAnswerVisible(false)
     }
   }, [])
 
@@ -105,10 +99,13 @@ export function Editor() {
   useEffect(() => {
     if (activeIndex >= 0 && suggestions[activeIndex]) {
       fetchAnswer(suggestions[activeIndex])
-    } else if (activeLogoIndex < 0) {
+    } else if (activeLogoIndex < 0 && activeIndex < 0 && currentQuery) {
+      // No selection but we have a query - show answer for the query
+      fetchAnswer(currentQuery)
+    } else if (activeLogoIndex < 0 && activeIndex < 0) {
       setAnswerVisible(false)
     }
-  }, [activeIndex, suggestions, fetchAnswer, activeLogoIndex])
+  }, [activeIndex, suggestions, fetchAnswer, activeLogoIndex, currentQuery])
 
   const handleInput = useCallback(() => {
     const text = editorRef.current?.innerText || ""
@@ -118,32 +115,14 @@ export function Editor() {
     setAnswerVisible(false)
     setResultsVisible(false)
     setActiveLogoIndex(-1)
+    setCurrentQuery("")
 
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
 
     debounceRef.current = setTimeout(() => {
       fetchSuggestions(text)
     }, 250)
-
-    searchDebounceRef.current = setTimeout(() => {
-      fetchSearchResults(text)
-    }, 300)
-  }, [fetchSuggestions, fetchSearchResults])
-
-  const handleLogoImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const img = e.currentTarget
-    console.log("[v0] Favicon failed to load:", img.src)
-    img.style.display = "none"
-    const parent = img.parentElement
-    if (parent) {
-      parent.style.backgroundColor = "hsl(0 0% 80%)"
-    }
-  }
-
-  const handleLogoImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    console.log("[v0] Favicon loaded successfully:", e.currentTarget.src)
-  }
+  }, [fetchSuggestions])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -164,6 +143,30 @@ export function Editor() {
         return
       }
 
+      if (e.key === "Enter") {
+        e.preventDefault()
+        
+        const text = editorRef.current?.innerText || ""
+        
+        if (activeIndex >= 0 && suggestions[activeIndex]) {
+          // User selected a suggestion - use that
+          const selected = suggestions[activeIndex]
+          setCurrentQuery(selected)
+          setVisible(false)
+          setActiveIndex(-1)
+          fetchSearchResults(selected)
+          fetchAnswer(selected)
+        } else if (text.trim()) {
+          // No suggestion selected - use current text
+          setCurrentQuery(text.trim())
+          setVisible(false)
+          setActiveIndex(-1)
+          fetchSearchResults(text.trim())
+          fetchAnswer(text.trim())
+        }
+        return
+      }
+
       if (suggestions.length === 0 || !visible) return
 
       if (e.key === "ArrowDown") {
@@ -176,31 +179,15 @@ export function Editor() {
         e.preventDefault()
         setActiveLogoIndex(-1)
         setActiveIndex((prev) => (prev > 0 ? prev - 1 : -1))
-      } else if (e.key === "Enter" && activeIndex >= 0) {
-        e.preventDefault()
-        const selected = suggestions[activeIndex]
-        if (editorRef.current) {
-          editorRef.current.textContent = selected
-          const range = document.createRange()
-          const sel = window.getSelection()
-          range.selectNodeContents(editorRef.current)
-          range.collapse(false)
-          sel?.removeAllRanges()
-          sel?.addRange(range)
-        }
-        setActiveIndex(-1)
-        setAnswerVisible(false)
-        handleInput()
       }
     },
-    [suggestions, visible, activeIndex, handleInput, searchResults.length]
+    [suggestions, visible, activeIndex, searchResults.length, fetchSearchResults, fetchAnswer]
   )
 
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
       if (answerDebounceRef.current) clearTimeout(answerDebounceRef.current)
-      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
     }
   }, [])
 
@@ -240,9 +227,6 @@ export function Editor() {
                   src={result.favicon}
                   alt={result.name}
                   className="w-full h-full object-cover"
-                  crossOrigin="anonymous"
-                  onError={handleLogoImageError}
-                  onLoad={handleLogoImageLoad}
                 />
               </div>
             </div>
@@ -323,7 +307,7 @@ export function Editor() {
           )}
         </div>
 
-        {/* Suggestion answer */}
+        {/* Answer */}
         <div
           className="transition-opacity duration-150 ease-in-out max-w-xs"
           style={{ opacity: answerVisible && activeLogoIndex < 0 ? 1 : 0 }}
