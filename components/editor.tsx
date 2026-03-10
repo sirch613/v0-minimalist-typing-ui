@@ -252,7 +252,7 @@ export function Editor() {
         {/* Search + suggestions */}
         <div className="flex-shrink-0" style={{ width: 440 }}>
           {/* Search bar card */}
-          <div className="rounded-md px-4 py-3" style={{ background: "#ebebeb" }}>
+          <div className="rounded-md py-3" style={{ background: "#ebebeb", paddingLeft: 42, paddingRight: 16 }}>
             <input
               ref={inputRef}
               type="text"
@@ -270,9 +270,12 @@ export function Editor() {
 
           {/* Suggestions card */}
           <div
-            className="mt-2 rounded-md px-5 py-4"
+            className="mt-2 rounded-md py-4"
+            // paddingLeft 20px so dot (12px) + gap (10px) + 20px = 42px text start
             style={{
               background: "#ebebeb",
+              paddingLeft: 20,
+              paddingRight: 20,
               opacity: visible ? 1 : 0,
               transition: "opacity 0.2s ease",
             }}
@@ -297,12 +300,10 @@ export function Editor() {
                     fetchSuggestions(suggestion)
                   }}
                 >
-                  {i === activeIndex && (
-                    <span
-                      className="w-3 h-3 rounded-sm flex-shrink-0"
-                      style={{ background: "#f0c050" }}
-                    />
-                  )}
+                  <span
+                    className="w-3 h-3 rounded-sm flex-shrink-0"
+                    style={{ background: i === activeIndex ? "#f0c050" : "transparent" }}
+                  />
                   <span>{suggestion}</span>
                 </div>
               ))}
