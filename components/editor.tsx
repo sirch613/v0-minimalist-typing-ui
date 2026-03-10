@@ -215,9 +215,9 @@ export function Editor() {
       <style>{`*::-webkit-scrollbar { display: none; } * { scrollbar-width: none; }`}</style>
 
       {/* Top: search + suggestions | answer */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left/Center: search + suggestions */}
-        <div className="flex-1 pt-5 px-4" style={{ maxWidth: 440 }}>
+      <div className="flex flex-1 overflow-hidden justify-center">
+        {/* Center: search + suggestions */}
+        <div className="flex-shrink-0 pt-5 px-4" style={{ width: 440 }}>
           {/* Search bar card */}
           <div className="rounded-md px-4 py-3" style={{ background: "#ebebeb" }}>
             <input
@@ -278,7 +278,7 @@ export function Editor() {
         </div>
 
         {/* Right: answer card */}
-        <div className="flex-shrink-0 pt-5 pr-5" style={{ width: "30%" }}>
+        <div className="flex-shrink-0 pt-5 pr-5" style={{ width: 280 }}>
           <div
             className="rounded-md px-6 py-5"
             style={{
