@@ -283,31 +283,22 @@ export function Editor() {
             className="rounded-md px-6 py-5"
             style={{
               background: "#e5e5e5",
-              opacity: answerVisible && activeLogoIndex < 0 ? 1 : 0,
+              opacity: (answerVisible || activeLogoIndex >= 0) ? 1 : 0,
               transition: "opacity 0.4s ease",
               minHeight: 180,
             }}
           >
-            <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
-          </div>
-
-          {/* Result info on preview hover */}
-          <div
-            className="mt-4 px-2"
-            style={{
-              opacity: activeLogoIndex >= 0 ? 1 : 0,
-              transition: "opacity 0.3s ease",
-            }}
-          >
-            {activeLogoIndex >= 0 && searchResults[activeLogoIndex] && (
+            {activeLogoIndex >= 0 && searchResults[activeLogoIndex] ? (
               <>
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-sm font-medium text-foreground mb-2">
                   {searchResults[activeLogoIndex].name}
                 </p>
-                <p className="text-xs mt-1 leading-relaxed" style={{ color: "#888" }}>
+                <p className="text-xs leading-relaxed" style={{ color: "#666" }}>
                   {searchResults[activeLogoIndex].desc}
                 </p>
               </>
+            ) : (
+              <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
             )}
           </div>
         </div>
