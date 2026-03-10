@@ -124,6 +124,21 @@ export function Editor() {
     }
   }, [])
 
+  // Auto-scroll bottom strip to keep highlighted card visible
+  useEffect(() => {
+    if (activeLogoIndex >= 0) {
+      const cardLeft = activeLogoIndex * (CARD_WIDTH + CARD_GAP)
+      const cardRight = cardLeft + CARD_WIDTH
+      const viewLeft = scrollX
+      const viewRight = scrollX + window.innerWidth - 40
+      if (cardRight > viewRight) {
+        setScrollX(cardRight - window.innerWidth + 40)
+      } else if (cardLeft < viewLeft) {
+        setScrollX(cardLeft)
+      }
+    }
+  }, [activeLogoIndex, scrollX])
+
   useEffect(() => {
     if (activeIndex >= 0 && suggestions[activeIndex]) {
       if (answerDebounceRef.current) clearTimeout(answerDebounceRef.current)
@@ -182,6 +197,24 @@ export function Editor() {
         return
       }
 
+      if (e.key === "ArrowRight") {
+        if (searchResults.length === 0) return
+        e.preventDefault()
+        setActiveIndex(-1)
+        setActiveLogoIndex((prev) =>
+          prev < searchResults.length - 1 ? prev + 1 : prev
+        )
+        return
+      }
+
+      if (e.key === "ArrowLeft") {
+        if (searchResults.length === 0) return
+        e.preventDefault()
+        setActiveIndex(-1)
+        setActiveLogoIndex((prev) => (prev > 0 ? prev - 1 : -1))
+        return
+      }
+
       if (suggestions.length === 0 || !visible) return
 
       if (e.key === "ArrowDown") {
@@ -196,7 +229,7 @@ export function Editor() {
         setActiveIndex((prev) => (prev > 0 ? prev - 1 : -1))
       }
     },
-    [suggestions, visible, activeIndex, inputValue, fetchSearchResults, fetchAnswer]
+    [suggestions, visible, activeIndex, inputValue, searchResults.length, fetchSearchResults, fetchAnswer]
   )
 
   useEffect(() => {
