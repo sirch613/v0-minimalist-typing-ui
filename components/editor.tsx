@@ -248,9 +248,9 @@ export function Editor() {
       <style>{`*::-webkit-scrollbar { display: none; } * { scrollbar-width: none; }`}</style>
 
       {/* Top: search + suggestions | answer */}
-      <div className="flex-1 overflow-hidden flex items-start justify-center pt-5 px-4 gap-4">
-        {/* Search + suggestions */}
-        <div className="flex-shrink-0" style={{ width: 440 }}>
+      <div className="flex-1 overflow-hidden relative pt-5 px-4">
+        {/* Search + suggestions — always centered */}
+        <div className="mx-auto" style={{ width: 440 }}>
           {/* Search bar card */}
           <div className="rounded-md py-3" style={{ background: "#ebebeb", paddingLeft: 42, paddingRight: 16 }}>
             <input
@@ -311,13 +311,15 @@ export function Editor() {
           </div>
         </div>
 
-        {/* Answer card — sits right next to suggestions, grows wider with content */}
+        {/* Answer card — absolutely positioned to the right of search */}
         <div
-          className="rounded-md px-6 py-5"
+          className="absolute rounded-md px-6 py-5"
           style={{
             background: "#e5e5e5",
             opacity: (answerVisible || activeLogoIndex >= 0) ? 1 : 0,
-            transition: "opacity 0.4s ease, max-width 0.3s ease",
+            transition: "opacity 0.4s ease",
+            top: 20,
+            left: "calc(50% + 236px)",
             minWidth: 200,
             maxWidth: 360,
           }}
