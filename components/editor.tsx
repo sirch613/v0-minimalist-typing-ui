@@ -245,14 +245,29 @@ export function Editor() {
       className="h-screen bg-white text-foreground flex flex-col overflow-hidden"
       onClick={() => inputRef.current?.focus()}
     >
-      <style>{`*::-webkit-scrollbar { display: none; } * { scrollbar-width: none; }`}</style>
+      <style>{`
+        *::-webkit-scrollbar { display: none; }
+        * { scrollbar-width: none; }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        .dot-blink { animation: blink 1s ease-in-out infinite; }
+      `}</style>
 
       {/* Top: search + suggestions | answer */}
       <div className="flex-1 overflow-hidden relative pt-5 px-4">
         {/* Search + suggestions — always centered */}
         <div className="mx-auto" style={{ width: 440 }}>
           {/* Search bar card */}
-          <div className="rounded-md py-3" style={{ background: "#ebebeb", paddingLeft: 42, paddingRight: 16 }}>
+          <div className="rounded-md py-3 flex items-center" style={{ background: "#ebebeb", paddingLeft: 20, paddingRight: 16 }}>
+            <span
+              className="w-3 h-3 rounded-sm flex-shrink-0 dot-blink"
+              style={{
+                background: activeIndex < 0 && activeLogoIndex < 0 ? "#f0c050" : "transparent",
+                marginRight: 10,
+              }}
+            />
             <input
               ref={inputRef}
               type="text"
@@ -343,7 +358,7 @@ export function Editor() {
       <div
         className="flex-shrink-0 overflow-hidden"
         style={{
-          height: resultsVisible ? 200 : 0,
+          height: resultsVisible ? 220 : 0,
           opacity: resultsVisible ? 1 : 0,
           transition: "height 0.4s ease, opacity 0.3s ease",
           paddingBottom: resultsVisible ? 20 : 0,
@@ -358,14 +373,18 @@ export function Editor() {
           }}
         >
           {searchResults.map((result, i) => (
+            <div key={`wrap-${result.url}-${i}`} className="flex-shrink-0 flex flex-col items-start" style={{ width: CARD_WIDTH }}>
+              {/* Dot above highlighted card */}
+              <span
+                className="w-3 h-3 rounded-sm mb-1.5 dot-blink"
+                style={{ background: activeLogoIndex === i ? "#f0c050" : "transparent" }}
+              />
             <a
-              key={`preview-${result.url}-${i}`}
               href={result.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-shrink-0 rounded-lg overflow-hidden cursor-pointer relative"
+              className="rounded-lg overflow-hidden cursor-pointer relative block w-full"
               style={{
-                width: CARD_WIDTH,
                 height: 170,
                 background: "#f5f5f5",
                 outline: activeLogoIndex === i ? "2px solid var(--accent)" : "none",
@@ -421,6 +440,7 @@ export function Editor() {
                 onError={(e) => { (e.target as HTMLElement).style.display = "none" }}
               />
             </a>
+            </div>
           ))}
           {searchResults.length > 0 && (
             <button
