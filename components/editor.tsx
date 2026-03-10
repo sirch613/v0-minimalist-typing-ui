@@ -4,6 +4,10 @@ import { useRef, useEffect, useState, useCallback } from "react"
 
 const CARD_WIDTH = 300
 const CARD_GAP = 24
+const DOT_COLORS = [
+  "#f0c050", "#e06050", "#50b0e0", "#60c060", "#b060d0",
+  "#f08040", "#d05090", "#40b0a0", "#7080e0", "#c0a030",
+]
 
 interface SearchResult {
   name: string
@@ -27,6 +31,8 @@ export function Editor() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [page, setPage] = useState(0)
   const [scrollX, setScrollX] = useState(0)
+  const [dotColorIndex, setDotColorIndex] = useState(0)
+  const dotColor = DOT_COLORS[dotColorIndex % DOT_COLORS.length]
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const answerDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -34,6 +40,16 @@ export function Editor() {
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
+
+  // Advance dot color when it moves to a new location
+  const prevDotPos = useRef({ activeIndex: -1, activeLogoIndex: -1 })
+  useEffect(() => {
+    const prev = prevDotPos.current
+    if (activeIndex !== prev.activeIndex || activeLogoIndex !== prev.activeLogoIndex) {
+      setDotColorIndex((c) => c + 1)
+      prevDotPos.current = { activeIndex, activeLogoIndex }
+    }
+  }, [activeIndex, activeLogoIndex])
 
   // Scroll-driven horizontal translation for bottom card strip
   useEffect(() => {
@@ -264,7 +280,7 @@ export function Editor() {
             <span
               className="w-3 h-3 rounded-sm flex-shrink-0 dot-blink"
               style={{
-                background: activeIndex < 0 && activeLogoIndex < 0 ? "#f0c050" : "transparent",
+                background: activeIndex < 0 && activeLogoIndex < 0 ? dotColor : "transparent",
                 marginRight: 10,
               }}
             />
@@ -279,8 +295,7 @@ export function Editor() {
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="off"
-              className="w-full bg-transparent text-sm text-foreground placeholder:text-muted outline-none"
-              style={{ caretColor: inputValue ? "var(--foreground)" : "transparent" }}
+              className="w-full bg-transparent text-sm text-foreground placeholder:text-muted caret-foreground outline-none"
             />
           </div>
 
@@ -318,7 +333,7 @@ export function Editor() {
                 >
                   <span
                     className="w-3 h-3 rounded-sm flex-shrink-0"
-                    style={{ background: i === activeIndex ? "#f0c050" : "transparent" }}
+                    style={{ background: i === activeIndex ? dotColor : "transparent" }}
                   />
                   <span>{suggestion}</span>
                 </div>
@@ -375,11 +390,16 @@ export function Editor() {
         >
           {searchResults.map((result, i) => (
             <div key={`wrap-${result.url}-${i}`} className="flex-shrink-0 flex flex-col items-start" style={{ width: CARD_WIDTH }}>
-              {/* Dot above highlighted card */}
-              <span
-                className="w-3 h-3 rounded-sm mb-1.5"
-                style={{ background: activeLogoIndex === i ? "#f0c050" : "transparent" }}
-              />
+              {/* Dot + name above highlighted card */}
+              <div className="flex items-center gap-2 mb-1.5" style={{ height: 12 }}>
+                <span
+                  className="w-3 h-3 rounded-sm flex-shrink-0"
+                  style={{ background: activeLogoIndex === i ? dotColor : "transparent" }}
+                />
+                {activeLogoIndex === i && (
+                  <span className="text-xs font-medium text-foreground whitespace-nowrap">{result.name}</span>
+                )}
+              </div>
             <a
               href={result.url}
               target="_blank"
@@ -388,9 +408,7 @@ export function Editor() {
               style={{
                 height: 170,
                 background: "#f5f5f5",
-                outline: activeLogoIndex === i ? "2px solid var(--accent)" : "none",
-                outlineOffset: 2,
-                transition: "outline 0.15s ease",
+                transition: "opacity 0.15s ease",
               }}
               onMouseEnter={() => {
                 setActiveLogoIndex(i)
