@@ -279,7 +279,8 @@ export function Editor() {
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="off"
-              className="w-full bg-transparent text-sm text-foreground placeholder:text-muted caret-foreground outline-none"
+              className="w-full bg-transparent text-sm text-foreground placeholder:text-muted outline-none"
+              style={{ caretColor: inputValue ? "var(--foreground)" : "transparent" }}
             />
           </div>
 
@@ -376,7 +377,7 @@ export function Editor() {
             <div key={`wrap-${result.url}-${i}`} className="flex-shrink-0 flex flex-col items-start" style={{ width: CARD_WIDTH }}>
               {/* Dot above highlighted card */}
               <span
-                className="w-3 h-3 rounded-sm mb-1.5 dot-blink"
+                className="w-3 h-3 rounded-sm mb-1.5"
                 style={{ background: activeLogoIndex === i ? "#f0c050" : "transparent" }}
               />
             <a
