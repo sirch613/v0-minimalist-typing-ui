@@ -214,10 +214,10 @@ export function Editor() {
     >
       <style>{`*::-webkit-scrollbar { display: none; } * { scrollbar-width: none; }`}</style>
 
-      {/* Top: search + suggestions + answer */}
+      {/* Top: search + suggestions | answer */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Center: search + suggestions */}
-        <div className="flex-1 pt-5 px-4" style={{ maxWidth: 440, margin: "0 auto" }}>
+        {/* Left/Center: search + suggestions */}
+        <div className="flex-1 pt-5 px-4" style={{ maxWidth: 440 }}>
           {/* Search bar card */}
           <div className="rounded-md px-4 py-3" style={{ background: "#ebebeb" }}>
             <input
@@ -275,28 +275,39 @@ export function Editor() {
               ))}
             </div>
           </div>
+        </div>
 
-          {/* Answer card (below suggestions) */}
+        {/* Right: answer card */}
+        <div className="flex-shrink-0 pt-5 pr-5" style={{ width: "30%" }}>
           <div
-            className="mt-4 rounded-md px-6 py-5"
+            className="rounded-md px-6 py-5"
             style={{
               background: "#e5e5e5",
-              opacity: answerVisible ? 1 : 0,
+              opacity: answerVisible && activeLogoIndex < 0 ? 1 : 0,
               transition: "opacity 0.4s ease",
-              minHeight: 120,
+              minHeight: 180,
             }}
           >
-            {activeLogoIndex >= 0 && searchResults[activeLogoIndex] ? (
+            <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
+          </div>
+
+          {/* Result info on preview hover */}
+          <div
+            className="mt-4 px-2"
+            style={{
+              opacity: activeLogoIndex >= 0 ? 1 : 0,
+              transition: "opacity 0.3s ease",
+            }}
+          >
+            {activeLogoIndex >= 0 && searchResults[activeLogoIndex] && (
               <>
-                <p className="text-sm font-medium text-foreground mb-2">
+                <p className="text-sm font-medium text-foreground">
                   {searchResults[activeLogoIndex].name}
                 </p>
-                <p className="text-xs leading-relaxed" style={{ color: "#888" }}>
+                <p className="text-xs mt-1 leading-relaxed" style={{ color: "#888" }}>
                   {searchResults[activeLogoIndex].desc}
                 </p>
               </>
-            ) : (
-              <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
             )}
           </div>
         </div>
