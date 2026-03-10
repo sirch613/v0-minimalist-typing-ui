@@ -274,7 +274,7 @@ export function Editor() {
               value={inputValue}
               onChange={handleInput}
               onKeyDown={handleKeyDown}
-              placeholder="type to search..."
+              placeholder="sirch"
               spellCheck={false}
               autoComplete="off"
               autoCorrect="off"
