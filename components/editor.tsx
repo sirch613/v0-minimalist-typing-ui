@@ -391,7 +391,7 @@ export function Editor() {
           {searchResults.map((result, i) => (
             <div key={`wrap-${result.url}-${i}`} className="flex-shrink-0 flex flex-col items-start" style={{ width: CARD_WIDTH }}>
               {/* Dot + name above highlighted card */}
-              <div className="flex items-center gap-2 mb-1.5" style={{ height: 12 }}>
+              <div className="flex items-center gap-2 mb-0.5" style={{ height: 12 }}>
                 <span
                   className="w-3 h-3 rounded-sm flex-shrink-0"
                   style={{ background: activeLogoIndex === i ? dotColor : "transparent" }}
