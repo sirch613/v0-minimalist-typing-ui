@@ -140,6 +140,25 @@ export function Editor() {
     }
   }, [])
 
+  const fetchScrapeAnswer = useCallback(async (url: string, query: string) => {
+    if (!url || !query) return
+    setAnswer("reading page...")
+    setAnswerVisible(true)
+    try {
+      const res = await fetch(`/api/scrape-answer?url=${encodeURIComponent(url)}&q=${encodeURIComponent(query)}`)
+      const data = await res.json()
+      if (data.answer) {
+        setAnswer(data.answer)
+      } else {
+        setAnswer("")
+        setAnswerVisible(false)
+      }
+    } catch {
+      setAnswer("")
+      setAnswerVisible(false)
+    }
+  }, [])
+
   // Auto-scroll bottom strip to keep highlighted card visible
   useEffect(() => {
     if (activeLogoIndex >= 0) {
@@ -164,10 +183,10 @@ export function Editor() {
     } else if (activeLogoIndex >= 0 && searchResults[activeLogoIndex]) {
       if (answerDebounceRef.current) clearTimeout(answerDebounceRef.current)
       answerDebounceRef.current = setTimeout(() => {
-        fetchAnswer(searchResults[activeLogoIndex].name)
-      }, 100)
+        fetchScrapeAnswer(searchResults[activeLogoIndex].url, inputValue)
+      }, 300)
     }
-  }, [activeIndex, activeLogoIndex, suggestions, searchResults, fetchAnswer])
+  }, [activeIndex, activeLogoIndex, suggestions, searchResults, fetchAnswer, fetchScrapeAnswer, inputValue])
 
   const handleInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
