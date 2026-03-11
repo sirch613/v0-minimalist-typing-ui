@@ -378,18 +378,7 @@ export function Editor() {
             maxWidth: 360,
           }}
         >
-          {activeLogoIndex >= 0 && searchResults[activeLogoIndex] ? (
-            <>
-              <p className="text-sm font-medium text-foreground mb-2">
-                {searchResults[activeLogoIndex].name}
-              </p>
-              <p className="text-xs leading-relaxed" style={{ color: "#666" }}>
-                {searchResults[activeLogoIndex].desc}
-              </p>
-            </>
-          ) : (
-            <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
-          )}
+          <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
         </div>
       </div>
 
