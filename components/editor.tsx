@@ -429,40 +429,18 @@ export function Editor() {
 
         {/* Answer/preview card — absolutely positioned to the right of search */}
         <div
-          className="absolute rounded-md overflow-hidden"
+          className="absolute rounded-md px-6 py-5"
           style={{
             background: "#e5e5e5",
             opacity: (answerVisible || activeLogoIndex >= 0) ? 1 : 0,
             transition: "opacity 0.4s ease",
             top: 20,
             left: "calc(50% + 236px)",
-            width: activeLogoIndex >= 0 ? 360 : undefined,
-            minWidth: activeLogoIndex >= 0 ? undefined : 200,
+            minWidth: 200,
             maxWidth: 360,
           }}
         >
-          {activeLogoIndex >= 0 && searchResults[activeLogoIndex] ? (
-            <>
-              {/* Screenshot */}
-              <div style={{ width: "100%", height: 220, background: "#ddd", position: "relative" }}>
-                <img
-                  src={`/api/screenshot?url=${encodeURIComponent(searchResults[activeLogoIndex].url)}`}
-                  alt=""
-                  className="w-full h-full object-cover object-top"
-                  style={{ display: "block" }}
-                  onError={(e) => { (e.target as HTMLElement).style.display = "none" }}
-                />
-              </div>
-              {/* AI summary below screenshot */}
-              <div className="px-5 py-4">
-                <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
-              </div>
-            </>
-          ) : (
-            <div className="px-6 py-5">
-              <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
-            </div>
-          )}
+          <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
         </div>
       </div>
 
@@ -542,20 +520,15 @@ export function Editor() {
                   {result.name}
                 </p>
               </div>
-              <img
-                src={`/api/screenshot?url=${encodeURIComponent(result.url)}`}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700"
-                loading="lazy"
-                style={{ opacity: 0 }}
-                onLoad={(e) => {
-                  const img = e.target as HTMLImageElement
-                  if (img.naturalWidth > 10 && img.naturalHeight > 10) {
-                    img.style.opacity = "1"
-                  }
-                }}
-                onError={(e) => { (e.target as HTMLElement).style.display = "none" }}
-              />
+              {activeLogoIndex === i && (
+                <img
+                  src={`/api/screenshot?url=${encodeURIComponent(result.url)}`}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-500"
+                  style={{ opacity: 1 }}
+                  onError={(e) => { (e.target as HTMLElement).style.display = "none" }}
+                />
+              )}
             </a>
             </div>
           ))}
