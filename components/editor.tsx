@@ -17,20 +17,10 @@ interface SearchResult {
   image: string
 }
 
-interface TopSite {
-  name: string
-  domain: string
-  url: string
-  favicon: string
-}
-
 export function Editor() {
   const inputRef = useRef<HTMLInputElement>(null)
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
-  const [topSites, setTopSites] = useState<TopSite[]>([])
-  const [autoScrollX, setAutoScrollX] = useState(0)
-  const autoScrollRef = useRef<number | null>(null)
   const [visible, setVisible] = useState(false)
   const [resultsVisible, setResultsVisible] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
@@ -55,10 +45,6 @@ export function Editor() {
       .then((r) => r.json())
       .then((d) => { if (d.trends?.length) setTrends(d.trends) })
       .catch(() => {})
-    fetch("/api/top-sites")
-      .then((r) => r.json())
-      .then((d) => { if (d.sites?.length) setTopSites(d.sites) })
-      .catch(() => {})
   }, [])
 
   // Cycle through trending queries in placeholder
@@ -70,29 +56,6 @@ export function Editor() {
     return () => clearInterval(interval)
   }, [trends])
 
-  // Auto-scroll top sites strip slowly right-to-left
-  const showTopSites = topSites.length > 0 && !resultsVisible && !inputValue
-  useEffect(() => {
-    if (!showTopSites) {
-      if (autoScrollRef.current) cancelAnimationFrame(autoScrollRef.current)
-      return
-    }
-    const totalWidth = topSites.length * (CARD_WIDTH + CARD_GAP)
-    let lastTime = 0
-    const tick = (time: number) => {
-      if (lastTime) {
-        const dt = time - lastTime
-        setAutoScrollX((prev) => {
-          const next = prev + dt * 0.03 // pixels per ms
-          return next > totalWidth ? 0 : next
-        })
-      }
-      lastTime = time
-      autoScrollRef.current = requestAnimationFrame(tick)
-    }
-    autoScrollRef.current = requestAnimationFrame(tick)
-    return () => { if (autoScrollRef.current) cancelAnimationFrame(autoScrollRef.current) }
-  }, [showTopSites, topSites.length])
 
   // Advance dot color when it moves to a new location
   const prevDotPos = useRef({ activeIndex: -1, activeLogoIndex: -1 })
@@ -432,72 +395,6 @@ export function Editor() {
           }}
         >
           <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
-        </div>
-      </div>
-
-      {/* Top sites strip — shows before user types */}
-      <div
-        className="flex-shrink-0 overflow-hidden"
-        style={{
-          height: showTopSites ? 200 : 0,
-          opacity: showTopSites ? 1 : 0,
-          transition: "height 0.4s ease, opacity 0.3s ease",
-          paddingBottom: showTopSites ? 20 : 0,
-        }}
-      >
-        <div
-          className="flex items-end gap-6 px-5"
-          style={{
-            height: "100%",
-            transform: `translateX(-${autoScrollX}px)`,
-          }}
-        >
-          {topSites.map((site, i) => (
-            <a
-              key={`top-${site.domain}-${i}`}
-              href={site.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0 rounded-lg overflow-hidden cursor-pointer relative block"
-              style={{
-                width: CARD_WIDTH,
-                height: 170,
-                background: "#f5f5f5",
-              }}
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                setInputValue(site.name)
-                fetchSearchResults(site.name)
-                fetchAnswer(site.name)
-                fetchSuggestions(site.name)
-              }}
-            >
-              <div className="absolute inset-0 flex flex-col justify-end p-3" style={{ background: "#f5f5f5" }}>
-                <div className="flex items-center gap-2 mb-1">
-                  <img src={site.favicon} alt="" className="w-3.5 h-3.5 rounded-full" />
-                  <span className="text-xs" style={{ color: "#aaa" }}>{site.domain}</span>
-                </div>
-                <p className="text-xs font-medium leading-snug" style={{ color: "var(--foreground)" }}>
-                  {site.name}
-                </p>
-              </div>
-              <img
-                src={`/api/screenshot?url=${encodeURIComponent(site.url)}`}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700"
-                loading="lazy"
-                style={{ opacity: 0 }}
-                onLoad={(e) => {
-                  const img = e.target as HTMLImageElement
-                  if (img.naturalWidth > 10 && img.naturalHeight > 10) {
-                    img.style.opacity = "1"
-                  }
-                }}
-                onError={(e) => { (e.target as HTMLElement).style.display = "none" }}
-              />
-            </a>
-          ))}
         </div>
       </div>
 
