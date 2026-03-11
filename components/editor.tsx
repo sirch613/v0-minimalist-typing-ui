@@ -17,10 +17,20 @@ interface SearchResult {
   image: string
 }
 
+interface TopSite {
+  name: string
+  domain: string
+  url: string
+  favicon: string
+}
+
 export function Editor() {
   const inputRef = useRef<HTMLInputElement>(null)
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [topSites, setTopSites] = useState<TopSite[]>([])
+  const [autoScrollX, setAutoScrollX] = useState(0)
+  const autoScrollRef = useRef<number | null>(null)
   const [visible, setVisible] = useState(false)
   const [resultsVisible, setResultsVisible] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
@@ -45,6 +55,10 @@ export function Editor() {
       .then((r) => r.json())
       .then((d) => { if (d.trends?.length) setTrends(d.trends) })
       .catch(() => {})
+    fetch("/api/top-sites")
+      .then((r) => r.json())
+      .then((d) => { if (d.sites?.length) setTopSites(d.sites) })
+      .catch(() => {})
   }, [])
 
   // Cycle through trending queries in placeholder
@@ -55,6 +69,30 @@ export function Editor() {
     }, 3000)
     return () => clearInterval(interval)
   }, [trends])
+
+  // Auto-scroll top sites strip slowly right-to-left
+  const showTopSites = topSites.length > 0 && !resultsVisible && !inputValue
+  useEffect(() => {
+    if (!showTopSites) {
+      if (autoScrollRef.current) cancelAnimationFrame(autoScrollRef.current)
+      return
+    }
+    const totalWidth = topSites.length * (80 + 16)
+    let lastTime = 0
+    const tick = (time: number) => {
+      if (lastTime) {
+        const dt = time - lastTime
+        setAutoScrollX((prev) => {
+          const next = prev + dt * 0.03 // pixels per ms
+          return next > totalWidth ? 0 : next
+        })
+      }
+      lastTime = time
+      autoScrollRef.current = requestAnimationFrame(tick)
+    }
+    autoScrollRef.current = requestAnimationFrame(tick)
+    return () => { if (autoScrollRef.current) cancelAnimationFrame(autoScrollRef.current) }
+  }, [showTopSites, topSites.length])
 
   // Advance dot color when it moves to a new location
   const prevDotPos = useRef({ activeIndex: -1, activeLogoIndex: -1 })
@@ -394,6 +432,53 @@ export function Editor() {
           }}
         >
           <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
+        </div>
+      </div>
+
+      {/* Top sites strip — shows before user types */}
+      <div
+        className="flex-shrink-0 overflow-hidden"
+        style={{
+          height: showTopSites ? 100 : 0,
+          opacity: showTopSites ? 1 : 0,
+          transition: "height 0.4s ease, opacity 0.3s ease",
+          paddingBottom: showTopSites ? 16 : 0,
+        }}
+      >
+        <div
+          className="flex items-center gap-4 px-5"
+          style={{
+            height: "100%",
+            transform: `translateX(-${autoScrollX}px)`,
+          }}
+        >
+          {topSites.map((site, i) => (
+            <a
+              key={`top-${site.domain}-${i}`}
+              href={site.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0 flex flex-col items-center gap-1.5 cursor-pointer group"
+              style={{ width: 80 }}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                setInputValue(site.name)
+                fetchSearchResults(site.name)
+                fetchAnswer(site.name)
+                fetchSuggestions(site.name)
+              }}
+            >
+              <img
+                src={site.favicon}
+                alt={site.name}
+                className="w-8 h-8 rounded-full group-hover:scale-110 transition-transform"
+              />
+              <span className="text-xs text-center truncate w-full" style={{ color: "#999" }}>
+                {site.name}
+              </span>
+            </a>
+          ))}
         </div>
       </div>
 
