@@ -1,0 +1,57 @@
+#sirch-trigger {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 3px;
+  background: #f0c050;
+  border-radius: 0 0 3px 3px;
+  z-index: 2147483646;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, width 0.2s ease;
+  pointer-events: auto;
+}
+
+#sirch-trigger:hover {
+  opacity: 1;
+  width: 160px;
+}
+
+#sirch-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2147483647;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+#sirch-overlay.active {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+#sirch-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+#sirch-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+}

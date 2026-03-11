@@ -1,13 +1,10 @@
-// Omnibox: type "sirch <query>" in the address bar
-chrome.omnibox.onInputEntered.addListener((text) => {
-  const query = text.trim()
-  if (query) {
-    chrome.tabs.update({ url: `https://sirch.ai/?q=${encodeURIComponent(query)}` })
-  } else {
-    chrome.tabs.update({ url: "https://sirch.ai" })
+// Forward Command+J shortcut to the active tab's content script
+chrome.commands.onCommand.addListener((command) => {
+  if (command === "toggle-sirch") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.id) {
+        chrome.tabs.sendMessage(tabs[0].id, { action: "toggle-sirch" });
+      }
+    });
   }
-})
-
-chrome.omnibox.setDefaultSuggestion({
-  description: "Search with Sirch AI: %s"
-})
+});

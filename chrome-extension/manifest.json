@@ -2,17 +2,30 @@
   "manifest_version": 3,
   "name": "Sirch AI",
   "version": "1.0.0",
-  "description": "Search the web, see real site previews, and get AI-powered summaries — all from your new tab.",
+  "description": "Hover to the top of your screen or press ⌘J to search with Sirch AI.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "chrome_url_overrides": {
-    "newtab": "newtab.html"
-  },
-  "omnibox": {
-    "keyword": "sirch"
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "commands": {
+    "toggle-sirch": {
+      "suggested_key": {
+        "default": "Command+J",
+        "mac": "Command+J",
+        "windows": "Ctrl+J",
+        "linux": "Ctrl+J"
+      },
+      "description": "Toggle Sirch AI overlay"
+    }
   },
   "background": {
     "service_worker": "background.js"

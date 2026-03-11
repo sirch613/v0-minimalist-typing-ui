@@ -48,6 +48,7 @@ export function Editor() {
   const [page, setPage] = useState(0)
   const [scrollX, setScrollX] = useState(0)
   const [dotColorIndex, setDotColorIndex] = useState(0)
+  const [isIframe, setIsIframe] = useState(false)
   const dotColor = DOT_COLORS[dotColorIndex % DOT_COLORS.length]
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -55,6 +56,8 @@ export function Editor() {
 
   useEffect(() => {
     inputRef.current?.focus()
+    // Detect if running inside an iframe (Chrome extension)
+    if (window.self !== window.top) setIsIframe(true)
     fetch("/api/trending")
       .then((r) => r.json())
       .then((d) => { if (d.trends?.length) setTrends(d.trends) })
@@ -320,7 +323,7 @@ export function Editor() {
 
   return (
     <div
-      className="h-screen bg-white text-foreground flex flex-col overflow-hidden relative"
+      className={`h-screen text-foreground flex flex-col overflow-hidden relative ${isIframe ? "bg-transparent" : "bg-white"}`}
       onClick={() => inputRef.current?.focus()}
     >
       {/* About link — bottom right, before user types */}
