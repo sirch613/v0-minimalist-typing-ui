@@ -427,20 +427,42 @@ export function Editor() {
           </div>
         </div>
 
-        {/* Answer card — absolutely positioned to the right of search */}
+        {/* Answer/preview card — absolutely positioned to the right of search */}
         <div
-          className="absolute rounded-md px-6 py-5"
+          className="absolute rounded-md overflow-hidden"
           style={{
             background: "#e5e5e5",
             opacity: (answerVisible || activeLogoIndex >= 0) ? 1 : 0,
             transition: "opacity 0.4s ease",
             top: 20,
             left: "calc(50% + 236px)",
-            minWidth: 200,
+            width: activeLogoIndex >= 0 ? 360 : undefined,
+            minWidth: activeLogoIndex >= 0 ? undefined : 200,
             maxWidth: 360,
           }}
         >
-          <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
+          {activeLogoIndex >= 0 && searchResults[activeLogoIndex] ? (
+            <>
+              {/* Screenshot */}
+              <div style={{ width: "100%", height: 220, background: "#ddd", position: "relative" }}>
+                <img
+                  src={`/api/screenshot?url=${encodeURIComponent(searchResults[activeLogoIndex].url)}`}
+                  alt=""
+                  className="w-full h-full object-cover object-top"
+                  style={{ display: "block" }}
+                  onError={(e) => { (e.target as HTMLElement).style.display = "none" }}
+                />
+              </div>
+              {/* AI summary below screenshot */}
+              <div className="px-5 py-4">
+                <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
+              </div>
+            </>
+          ) : (
+            <div className="px-6 py-5">
+              <p className="text-xs leading-relaxed" style={{ color: "#666" }}>{answer}</p>
+            </div>
+          )}
         </div>
       </div>
 
