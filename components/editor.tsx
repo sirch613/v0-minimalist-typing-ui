@@ -217,6 +217,10 @@ export function Editor() {
     (e: React.KeyboardEvent) => {
       if (e.key === "Enter") {
         e.preventDefault()
+        if (activeLogoIndex >= 0 && searchResults[activeLogoIndex]) {
+          window.open(searchResults[activeLogoIndex].url, "_blank")
+          return
+        }
         const q = activeIndex >= 0 && suggestions[activeIndex]
           ? suggestions[activeIndex]
           : inputValue.trim()
