@@ -8,6 +8,20 @@ const DOT_COLORS = [
   "#f0c050", "#e06050", "#50b0e0", "#60c060", "#b060d0",
   "#f08040", "#d05090", "#40b0a0", "#7080e0", "#c0a030",
 ]
+const LOADING_MESSAGES = [
+  "AI is reading this page so you can sip your coffee",
+  "AI is doing the hard work so you can pet your dog",
+  "AI is scanning this page so you can stare out the window",
+  "AI is reading every word so you can stretch your legs",
+  "AI is crunching this page so you can take a deep breath",
+  "AI is digesting this for you so you can check on your sourdough",
+  "AI is parsing paragraphs so you can doodle in your notebook",
+  "AI is extracting the good stuff so you can water your plants",
+  "AI is doing the reading so you can do the thinking",
+  "AI is on it — maybe do a little chair spin while you wait",
+  "AI is speed-reading this page so you can live your life",
+  "AI is finding your answer so you can contemplate the universe",
+]
 
 interface SearchResult {
   name: string
@@ -158,7 +172,7 @@ export function Editor() {
 
   const fetchScrapeAnswer = useCallback(async (url: string, query: string) => {
     if (!url || !query) return
-    setAnswer("reading page...")
+    setAnswer(LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)])
     setAnswerVisible(true)
     try {
       const res = await fetch(`/api/scrape-answer?url=${encodeURIComponent(url)}&q=${encodeURIComponent(query)}`)
@@ -304,10 +318,10 @@ export function Editor() {
       {!inputValue && (
         <a
           href="/about"
-          className="absolute bottom-4 right-5 text-xs transition-colors z-10"
-          style={{ color: "#ccc" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#999")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#ccc")}
+          className="absolute bottom-5 right-6 text-sm font-medium transition-colors z-10"
+          style={{ color: "#000" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#666")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#000")}
           onClick={(e) => e.stopPropagation()}
         >
           about
