@@ -77,7 +77,7 @@ export function Editor() {
       if (autoScrollRef.current) cancelAnimationFrame(autoScrollRef.current)
       return
     }
-    const totalWidth = topSites.length * (80 + 16)
+    const totalWidth = topSites.length * (CARD_WIDTH + CARD_GAP)
     let lastTime = 0
     const tick = (time: number) => {
       if (lastTime) {
@@ -439,14 +439,14 @@ export function Editor() {
       <div
         className="flex-shrink-0 overflow-hidden"
         style={{
-          height: showTopSites ? 100 : 0,
+          height: showTopSites ? 200 : 0,
           opacity: showTopSites ? 1 : 0,
           transition: "height 0.4s ease, opacity 0.3s ease",
-          paddingBottom: showTopSites ? 16 : 0,
+          paddingBottom: showTopSites ? 20 : 0,
         }}
       >
         <div
-          className="flex items-center gap-4 px-5"
+          className="flex items-end gap-6 px-5"
           style={{
             height: "100%",
             transform: `translateX(-${autoScrollX}px)`,
@@ -458,8 +458,12 @@ export function Editor() {
               href={site.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-shrink-0 flex flex-col items-center gap-1.5 cursor-pointer group"
-              style={{ width: 80 }}
+              className="flex-shrink-0 rounded-lg overflow-hidden cursor-pointer relative block"
+              style={{
+                width: CARD_WIDTH,
+                height: 170,
+                background: "#f5f5f5",
+              }}
               onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
@@ -469,14 +473,29 @@ export function Editor() {
                 fetchSuggestions(site.name)
               }}
             >
+              <div className="absolute inset-0 flex flex-col justify-end p-3" style={{ background: "#f5f5f5" }}>
+                <div className="flex items-center gap-2 mb-1">
+                  <img src={site.favicon} alt="" className="w-3.5 h-3.5 rounded-full" />
+                  <span className="text-xs" style={{ color: "#aaa" }}>{site.domain}</span>
+                </div>
+                <p className="text-xs font-medium leading-snug" style={{ color: "var(--foreground)" }}>
+                  {site.name}
+                </p>
+              </div>
               <img
-                src={site.favicon}
-                alt={site.name}
-                className="w-8 h-8 rounded-full group-hover:scale-110 transition-transform"
+                src={`/api/screenshot?url=${encodeURIComponent(site.url)}`}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700"
+                loading="lazy"
+                style={{ opacity: 0 }}
+                onLoad={(e) => {
+                  const img = e.target as HTMLImageElement
+                  if (img.naturalWidth > 10 && img.naturalHeight > 10) {
+                    img.style.opacity = "1"
+                  }
+                }}
+                onError={(e) => { (e.target as HTMLElement).style.display = "none" }}
               />
-              <span className="text-xs text-center truncate w-full" style={{ color: "#999" }}>
-                {site.name}
-              </span>
             </a>
           ))}
         </div>
