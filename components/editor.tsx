@@ -59,7 +59,16 @@ export function Editor() {
       .then((r) => r.json())
       .then((d) => { if (d.trends?.length) setTrends(d.trends) })
       .catch(() => {})
-  }, [])
+    // Support ?q= parameter (e.g. from Chrome extension omnibox)
+    const params = new URLSearchParams(window.location.search)
+    const q = params.get("q")
+    if (q) {
+      setInputValue(q)
+      fetchSearchResults(q)
+      fetchAnswer(q)
+      fetchSuggestions(q)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cycle through trending queries in placeholder
   useEffect(() => {
