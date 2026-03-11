@@ -397,7 +397,9 @@ export function Editor() {
                   style={{ background: activeLogoIndex === i ? dotColor : "transparent" }}
                 />
                 {activeLogoIndex === i && (
-                  <span className="text-xs font-medium text-foreground whitespace-nowrap">{result.name}</span>
+                  <span className="text-xs font-medium text-foreground whitespace-nowrap">
+                    {(() => { try { return new URL(result.url).hostname.replace("www.", "").split(".")[0] } catch { return "" } })()}
+                  </span>
                 )}
               </div>
             <a
