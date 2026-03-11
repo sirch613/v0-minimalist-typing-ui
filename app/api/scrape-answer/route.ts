@@ -9,21 +9,45 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Step 1: Scrape the page with Firecrawl
-    const scrapeRes = await fetch("https://api.firecrawl.dev/v2/scrape", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.FIRECRAWL_API_KEY}`,
-      },
-      body: JSON.stringify({
-        url,
-        formats: ["markdown"],
-      }),
-    })
+    // Step 1: Scrape the page with Firecrawl (with timeout)
+    let pageText = ""
+    try {
+      const scrapeRes = await fetch("https://api.firecrawl.dev/v2/scrape", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.FIRECRAWL_API_KEY}`,
+        },
+        body: JSON.stringify({
+          url,
+          formats: ["markdown"],
+        }),
+        signal: AbortSignal.timeout(8000),
+      })
+      const scrapeData = await scrapeRes.json()
+      pageText = scrapeData.data?.markdown || scrapeData.data?.content || ""
+    } catch {
+      // Firecrawl failed — try direct fetch as fallback
+    }
 
-    const scrapeData = await scrapeRes.json()
-    const pageText = scrapeData.data?.markdown || scrapeData.data?.content || ""
+    if (!pageText) {
+      try {
+        const directRes = await fetch(url, {
+          headers: { "User-Agent": "Mozilla/5.0 (compatible; SirchBot/1.0)" },
+          signal: AbortSignal.timeout(6000),
+        })
+        const html = await directRes.text()
+        // Strip HTML tags to get raw text
+        pageText = html
+          .replace(/<script[\s\S]*?<\/script>/gi, "")
+          .replace(/<style[\s\S]*?<\/style>/gi, "")
+          .replace(/<[^>]+>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+      } catch {
+        // Direct fetch also failed
+      }
+    }
 
     if (!pageText) {
       return NextResponse.json({ answer: "" })
