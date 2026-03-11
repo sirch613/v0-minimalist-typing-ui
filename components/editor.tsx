@@ -297,9 +297,22 @@ export function Editor() {
 
   return (
     <div
-      className="h-screen bg-white text-foreground flex flex-col overflow-hidden"
+      className="h-screen bg-white text-foreground flex flex-col overflow-hidden relative"
       onClick={() => inputRef.current?.focus()}
     >
+      {/* About link — bottom right, before user types */}
+      {!inputValue && (
+        <a
+          href="/about"
+          className="absolute bottom-4 right-5 text-xs transition-colors z-10"
+          style={{ color: "#ccc" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#999")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#ccc")}
+          onClick={(e) => e.stopPropagation()}
+        >
+          about
+        </a>
+      )}
       <style>{`
         *::-webkit-scrollbar { display: none; }
         * { scrollbar-width: none; }
