@@ -336,6 +336,25 @@ export function Editor() {
               autoCapitalize="off"
               className="w-full bg-transparent text-sm text-foreground placeholder:text-muted caret-foreground outline-none"
             />
+            {inputValue && (
+              <span
+                className="flex-shrink-0 cursor-pointer text-sm select-none"
+                style={{ color: "#999", marginLeft: 8, lineHeight: 1 }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setInputValue("")
+                  setVisible(false)
+                  setActiveIndex(-1)
+                  setAnswerVisible(false)
+                  setResultsVisible(false)
+                  setActiveLogoIndex(-1)
+                  setScrollX(0)
+                  inputRef.current?.focus()
+                }}
+              >
+                –
+              </span>
+            )}
           </div>
 
           {/* Suggestions card */}
