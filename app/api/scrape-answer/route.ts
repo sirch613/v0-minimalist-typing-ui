@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
         messages: [
           {
             role: "user",
-            content: `A user asked this question: "${query}"\n\nWhat does this text say in response to the question? Write at least 75 words. Include anything that makes this site unique, interesting, or stand out — specific details, notable features, surprising facts, or distinctive perspectives.\n\n${truncated}`,
+            content: `A user asked this question: "${query}"\n\nWhat does this text say in response to the question? Write about 50 words. Include anything that makes this site unique or stand out.\n\n${truncated}`,
           },
         ],
         temperature: 0.7,
