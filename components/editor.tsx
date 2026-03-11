@@ -28,6 +28,8 @@ export function Editor() {
   const [answer, setAnswer] = useState("")
   const [answerVisible, setAnswerVisible] = useState(false)
   const [inputValue, setInputValue] = useState("")
+  const [trends, setTrends] = useState<string[]>([])
+  const [trendIndex, setTrendIndex] = useState(0)
   const [loadingMore, setLoadingMore] = useState(false)
   const [page, setPage] = useState(0)
   const [scrollX, setScrollX] = useState(0)
@@ -39,7 +41,20 @@ export function Editor() {
 
   useEffect(() => {
     inputRef.current?.focus()
+    fetch("/api/trending")
+      .then((r) => r.json())
+      .then((d) => { if (d.trends?.length) setTrends(d.trends) })
+      .catch(() => {})
   }, [])
+
+  // Cycle through trending queries in placeholder
+  useEffect(() => {
+    if (trends.length === 0) return
+    const interval = setInterval(() => {
+      setTrendIndex((i) => (i + 1) % trends.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [trends])
 
   // Advance dot color when it moves to a new location
   const prevDotPos = useRef({ activeIndex: -1, activeLogoIndex: -1 })
@@ -313,7 +328,7 @@ export function Editor() {
               value={inputValue}
               onChange={handleInput}
               onKeyDown={handleKeyDown}
-              placeholder="sirch"
+              placeholder={trends.length > 0 ? `sirch ${trends[trendIndex]}` : "sirch"}
               spellCheck={false}
               autoComplete="off"
               autoCorrect="off"
