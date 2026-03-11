@@ -44,11 +44,11 @@ export async function GET(request: NextRequest) {
         messages: [
           {
             role: "user",
-            content: `A user asked this question: "${query}"\n\nWhat does this text say in response to the question?\n\n${truncated}`,
+            content: `A user asked this question: "${query}"\n\nWhat does this text say in response to the question? Write at least 75 words. Include anything that makes this site unique, interesting, or stand out — specific details, notable features, surprising facts, or distinctive perspectives.\n\n${truncated}`,
           },
         ],
         temperature: 0.7,
-        max_tokens: 200,
+        max_tokens: 400,
       }),
     })
 
